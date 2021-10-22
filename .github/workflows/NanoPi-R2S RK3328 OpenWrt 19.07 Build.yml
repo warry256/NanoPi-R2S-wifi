@@ -109,7 +109,7 @@ jobs:
           cd code/friendlywrt
 
           rm -rf feeds/packages/libs/libcap
-          svn co https://github.com/openwrt/packages/trunk/libs/libcap feeds/packages/libs/libcap
+          svn co https://github.com/openwrt/packages/trunk/libs/libcap feeds/packages/libs/libcap-ng
           
           rm -rf package/feeds/packages/netdata
           svn co https://github.com/openwrt/packages/trunk/admin/netdata package/feeds/packages/netdata
