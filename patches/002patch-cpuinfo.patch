@@ -1,0 +1,71 @@
+--- feeds/luci/modules/luci-base/root/usr/libexec/rpcd/luci
++++ feeds/luci/modules/luci-base/root/usr/libexec/rpcd/luci
+@@ -115,5 +115,17 @@
+ 		end
+ 	},
+
++	getCPUInfo = {
++		call = function()
++			local sys = require "luci.sys"
++			local cpuinfo = {}
++			cpuinfo.cpuinfo = sys.exec("/bin/cpuinfo")
++			if (cpuinfo.cpuinfo == nil) or (cpuinfo.cpuinfo == "") then
++				cpuinfo.cpuinfo = "ARMv8 Cortex-A53 / Rockchip RK3328 / 4 Processors"
++			end
++			return cpuinfo
++		end
++	},
++
+ 	getUSBDevices = {
+ 		call = function()
+--- feeds/luci/modules/luci-base/root/usr/share/rpcd/acl.d/luci-base.json
++++ feeds/luci/modules/luci-base/root/usr/share/rpcd/acl.d/luci-base.json
+@@ -62,7 +62,7 @@
+ 			"ubus": {
+ 				"file": [ "list", "read", "stat" ],
+ 				"iwinfo": [ "assoclist", "freqlist", "txpowerlist", "countrylist" ],
+-				"luci": [ "getConntrackList", "getInitList", "getLocaltime", "getProcessList", "getRealtimeStats", "getTimezones", "getLEDs", "getUSBDevices", "getSwconfigFeatures", "getSwconfigPortState", "getBlockDevices", "getMountPoints" ],
++				"luci": [ "getConntrackList", "getInitList", "getLocaltime", "getProcessList", "getRealtimeStats", "getTimezones", "getLEDs", "getCPUInfo", "getUSBDevices", "getSwconfigFeatures", "getSwconfigPortState", "getBlockDevices", "getMountPoints" ],
+ 				"luci-rpc": [ "getBoardJSON", "getDHCPLeases", "getDSLStatus", "getDUIDHints", "getHostHints", "getNetworkDevices", "getWirelessDevices" ],
+ 				"network.interface": [ "dump" ],
+ 				"network.rrdns": [ "lookup" ],
+--- feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
++++ feeds/luci/modules/luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
+@@ -13,6 +13,10 @@ var callSystemInfo = rpc.declare({
+ 	method: 'info'
+ });
+ 
++var callCPUInfo = rpc.declare({
++	object: 'luci',
++	method: 'getCPUInfo'
++});
+ return baseclass.extend({
+ 	title: _('System'),
+ 
+@@ -20,6 +24,7 @@ return baseclass.extend({
+ 		return Promise.all([
+ 			L.resolveDefault(callSystemBoard(), {}),
+ 			L.resolveDefault(callSystemInfo(), {}),
++			L.resolveDefault(callCPUInfo(), {}),
+ 			fs.lines('/usr/lib/lua/luci/version.lua')
+ 		]);
+ 	},
+@@ -27,7 +32,8 @@ return baseclass.extend({
+ 	render: function(data) {
+ 		var boardinfo   = data[0],
+ 		    systeminfo  = data[1],
+-		    luciversion = data[2];
++		    cpuinfo     = data[2],
++		    luciversion = data[3];
+ 
+ 		luciversion = luciversion.filter(function(l) {
+ 			return l.match(/^\s*(luciname|luciversion)\s*=/);
+@@ -53,7 +59,7 @@
+ 		var fields = [
+ 			_('Hostname'),         boardinfo.hostname,
+ 			_('Model'),            boardinfo.model,
+-			_('Architecture'),     boardinfo.system,
++			_('Architecture'),     cpuinfo.cpuinfo,
+ 			_('Firmware Version'), (L.isObject(boardinfo.release) ? boardinfo.release.description + ' / ' : '') + (luciversion || ''),
+ 			_('Kernel Version'),   boardinfo.kernel,
+ 			_('Local Time'),       datestr,
