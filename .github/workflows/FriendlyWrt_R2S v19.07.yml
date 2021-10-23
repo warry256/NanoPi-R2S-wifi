@@ -330,17 +330,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: ./artifact/*.gz,./artifact/*.txt
           
-      - name: Remove old Releases
-        uses: dev-drprasad/delete-older-releases@v0.1.0
-        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-        with:
-          keep_latest: 120
-          delete_tags: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
-          
-      - name: Delete Artifacts
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: |
-            FriendlyWrt_NanoPi-R2S RK3328 v19.07
+     
