@@ -1,7 +1,7 @@
 name: NanoPi-R2S OpenWrt 19.07 Build
 
 env:
-  SSH_ACTIONS:  false
+  SSH_ACTIONS:  true
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 on:
@@ -63,6 +63,7 @@ jobs:
           #漂亮的主题
           git clone https://github.com/jerrykuku/luci-theme-argon.git custom/luci-theme-argon
           git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config  custom/luci-app-argon-config
+          git clone https://github.com/tracemouse/luci-theme-netgear
 
           #越过长城
           svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash custom/luci-app-openclash
